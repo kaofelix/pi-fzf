@@ -1,6 +1,10 @@
 {
   "name": "pi-fzf",
   "version": "0.2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kaofelix/pi-fzf"
+  },
   "keywords": [
     "pi-package"
   ],
