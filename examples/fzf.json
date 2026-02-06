@@ -20,6 +20,14 @@
       "list": "git branch --format='%(refname:short)'",
       "action": { "type": "bash", "template": "git checkout {{selected}}" }
     },
+    "git-diff": {
+      "list": "git diff --name-only",
+      "action": {
+        "type": "bash",
+        "template": "git diff {{selected}}",
+        "output": "editor"
+      }
+    },
     "todo": {
       "list": "rg -l 'TODO|FIXME' || true",
       "action": {
