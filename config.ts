@@ -62,7 +62,7 @@ function loadConfigFile(path: string): FzfConfig | null {
 /**
  * Resolve the short/long action form into a consistent ResolvedAction.
  */
-function resolveAction(action: FzfAction): ResolvedAction {
+export function resolveAction(action: FzfAction): ResolvedAction {
   if (typeof action === "string") {
     return { type: "editor", template: action, output: "notify" };
   }

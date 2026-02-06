@@ -1,8 +1,8 @@
-import type { ExtensionAPI, ExtensionCommandContext } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import type { TUI } from "@mariozechner/pi-tui";
+import { executeAction } from "./actions.js";
 import { loadFzfConfig, type ResolvedCommand } from "./config.js";
 import { FuzzySelector, type SelectorTheme } from "./selector.js";
-import { executeAction } from "./actions.js";
 
 export default function (pi: ExtensionAPI) {
   let commands: ResolvedCommand[] = [];

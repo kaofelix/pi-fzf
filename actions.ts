@@ -1,4 +1,7 @@
-import type { ExtensionAPI, ExtensionCommandContext } from "@mariozechner/pi-coding-agent";
+import type {
+  ExtensionAPI,
+  ExtensionCommandContext,
+} from "@mariozechner/pi-coding-agent";
 import type { ResolvedAction } from "./config.js";
 import { renderTemplate } from "./config.js";
 
@@ -26,10 +29,7 @@ export async function executeAction(
       const result = await pi.exec("bash", ["-c", rendered]);
       if (result.code !== 0) {
         const error = (result.stderr || result.stdout).trim();
-        ctx.ui.notify(
-          `✗ Exit ${result.code}: ${error.slice(0, 100)}`,
-          "error",
-        );
+        ctx.ui.notify(`✗ Exit ${result.code}: ${error.slice(0, 100)}`, "error");
         break;
       }
 
@@ -44,7 +44,6 @@ export async function executeAction(
             pi.sendUserMessage(output);
           }
           break;
-        case "notify":
         default:
           ctx.ui.notify(
             output ? `✓ ${output.slice(0, 100)}` : "✓ Done",

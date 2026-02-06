@@ -1,7 +1,12 @@
-import { Fzf, type FzfResultItem } from "fzf";
 import type { Focusable } from "@mariozechner/pi-tui";
-import { Container, Input } from "@mariozechner/pi-tui";
-import { truncateToWidth, visibleWidth, matchesKey, Key } from "@mariozechner/pi-tui";
+import {
+  Container,
+  Input,
+  Key,
+  matchesKey,
+  visibleWidth,
+} from "@mariozechner/pi-tui";
+import { Fzf, type FzfResultItem } from "fzf";
 
 export interface SelectorTheme {
   accent: (text: string) => string;
@@ -173,15 +178,13 @@ export class FuzzySelector extends Container implements Focusable {
       const visible = Math.min(this.maxVisible, total);
       const startIndex = Math.max(
         0,
-        Math.min(
-          this.selectedIndex - Math.floor(visible / 2),
-          total - visible,
-        ),
+        Math.min(this.selectedIndex - Math.floor(visible / 2), total - visible),
       );
       const endIndex = Math.min(startIndex + visible, total);
 
       for (let i = startIndex; i < endIndex; i++) {
-        const entry = this.filtered[i]!;
+        const entry = this.filtered[i];
+        if (!entry) continue;
         const isSelected = i === this.selectedIndex;
         const prefix = isSelected ? "→ " : "  ";
 
@@ -251,11 +254,8 @@ function highlightMatches(
 
   let result = "";
   for (let i = 0; i < text.length; i++) {
-    if (positions.has(i)) {
-      result += highlightFn(text[i]!);
-    } else {
-      result += text[i];
-    }
+    const char = text.charAt(i);
+    result += positions.has(i) ? highlightFn(char) : char;
   }
   return result;
 }
