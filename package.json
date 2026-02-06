@@ -1,6 +1,6 @@
 {
   "name": "pi-fzf",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "keywords": [
     "pi-package"
@@ -21,7 +21,8 @@
   "pi": {
     "extensions": [
       "./index.ts"
-    ]
+    ],
+    "video": "https://raw.githubusercontent.com/kaofelix/pi-fzf/main/demo.mp4"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.14",
