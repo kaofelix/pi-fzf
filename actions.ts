@@ -24,18 +24,33 @@ export async function executeAction(
 
     case "bash": {
       const result = await pi.exec("bash", ["-c", rendered]);
-      if (result.code === 0) {
-        const output = result.stdout.trim();
-        ctx.ui.notify(
-          output ? `✓ ${output.slice(0, 100)}` : "✓ Done",
-          "info",
-        );
-      } else {
+      if (result.code !== 0) {
         const error = (result.stderr || result.stdout).trim();
         ctx.ui.notify(
           `✗ Exit ${result.code}: ${error.slice(0, 100)}`,
           "error",
         );
+        break;
+      }
+
+      const output = result.stdout.trim();
+
+      switch (action.output) {
+        case "editor":
+          ctx.ui.setEditorText(output);
+          break;
+        case "send":
+          if (output) {
+            pi.sendUserMessage(output);
+          }
+          break;
+        case "notify":
+        default:
+          ctx.ui.notify(
+            output ? `✓ ${output.slice(0, 100)}` : "✓ Done",
+            "info",
+          );
+          break;
       }
       break;
     }

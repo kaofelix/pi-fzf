@@ -4,6 +4,10 @@
       "list": "fd --type f --max-depth 4",
       "action": "Read and explain {{selected}}"
     },
+    "file-content": {
+      "list": "fd --type f --max-depth 4",
+      "action": { "type": "bash", "template": "cat {{selected}}", "output": "editor" }
+    },
     "skill": {
       "list": "fd -L 'SKILL.md' ~/.pi/agent/skills ~/.pi/agent/git 2>/dev/null | sed -E 's|.*/skills/([^/]+)/SKILL\\.md|\\1|' | grep -v '/' | sort -u",
       "action": { "type": "editor", "template": "/skill:{{selected}}" }

@@ -4,9 +4,13 @@ import { join } from "node:path";
 
 // --- Types ---
 
+export type BashOutput = "notify" | "editor" | "send";
+
 export interface FzfActionLong {
   type: "editor" | "send" | "bash";
   template: string;
+  /** For bash actions: where to send the output (default: "notify") */
+  output?: BashOutput;
 }
 
 /** Short form (string) defaults to editor type */
@@ -28,6 +32,8 @@ export interface FzfConfig {
 export interface ResolvedAction {
   type: "editor" | "send" | "bash";
   template: string;
+  /** For bash actions: where to send the output (default: "notify") */
+  output: BashOutput;
 }
 
 export interface ResolvedCommand {
@@ -58,9 +64,13 @@ function loadConfigFile(path: string): FzfConfig | null {
  */
 function resolveAction(action: FzfAction): ResolvedAction {
   if (typeof action === "string") {
-    return { type: "editor", template: action };
+    return { type: "editor", template: action, output: "notify" };
   }
-  return { type: action.type, template: action.template };
+  return {
+    type: action.type,
+    template: action.template,
+    output: action.output ?? "notify",
+  };
 }
 
 /**
