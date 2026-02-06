@@ -1,0 +1,10 @@
+{
+  "name": "pi-fzf",
+  "private": true,
+  "dependencies": {
+    "fzf": "^0.5.2"
+  },
+  "pi": {
+    "extensions": ["./index.ts"]
+  }
+}
