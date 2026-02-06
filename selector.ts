@@ -6,7 +6,7 @@ import {
   matchesKey,
   visibleWidth,
 } from "@mariozechner/pi-tui";
-import { Fzf, type FzfResultItem } from "fzf";
+import { extendedMatch, Fzf, type FzfResultItem } from "fzf";
 
 export interface SelectorTheme {
   accent: (text: string) => string;
@@ -130,7 +130,10 @@ export class FuzzySelector extends Container implements Focusable {
         positions: new Set<number>(),
       }));
     } else {
-      const fzf = new Fzf(this.candidates, { forward: false });
+      const fzf = new Fzf(this.candidates, {
+        forward: false,
+        match: extendedMatch,
+      });
       const results: FzfResultItem<string>[] = fzf.find(query);
       this.filtered = results.map((r) => ({
         item: r.item,
