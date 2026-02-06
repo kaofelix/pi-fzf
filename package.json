@@ -1,5 +1,6 @@
 {
   "name": "pi-fzf",
+  "version": "0.1.0",
   "private": true,
   "keywords": [
     "pi-package"
