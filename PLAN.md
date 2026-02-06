@@ -181,4 +181,57 @@ The component must implement `Focusable` for IME support since it contains an
 2. [x] `selector.ts` — The fuzzy selector TUI component
 3. [x] `actions.ts` — Action executors
 4. [x] `index.ts` — Wire it all together
-5. [ ] Test with a sample `fzf.json` config
+5. [x] Test with a sample `fzf.json` config
+
+---
+
+## Implementation Summary
+
+### What was built
+
+**`config.ts`**
+- Types: `FzfAction` (short string / long `{type, template}`), `FzfCommandConfig`, `FzfConfig`
+- Resolved types: `ResolvedAction`, `ResolvedCommand` (normalized after parsing)
+- `loadFzfConfig(cwd)` — loads and merges global + project configs
+- `renderTemplate(template, selected)` — replaces `{{selected}}` placeholder
+
+**`selector.ts`**
+- `FuzzySelector` extends `Container`, implements `Focusable`
+- Box UI with rounded corners (`╭╮╰╯`), side borders (`│`), separator (`├┤`)
+- Uses `fzf` npm library with `forward: false` (prefers matching filenames over directories)
+- `highlightMatches()` wraps matched characters with theme color
+- Keyboard: type to filter, ↑/↓ navigate (wrapping), Enter select, Escape cancel
+
+**`actions.ts`**
+- `executeAction()` switches on action type:
+  - `editor` → `ctx.ui.setEditorText(rendered)`
+  - `send` → `pi.sendUserMessage(rendered)`
+  - `bash` → `pi.exec()` + notification
+
+**`index.ts`**
+- On `session_start`: loads config, registers `/fzf:<name>` commands
+- Command handler: runs list command → opens overlay → executes action on selection
+- Captures `tui` reference to call `requestRender()` after action (fixes editor text visibility)
+
+### Issues encountered & fixes
+
+1. **No side borders** — Initial implementation only had horizontal lines. Fixed by
+   rendering a proper box with `│` side borders, rounded corners, and using
+   `visibleWidth()` for correct padding of ANSI-styled content.
+
+2. **Editor text not appearing after selection** — The `setEditorText()` call was
+   running in a microtask after the overlay closed, but no render was requested
+   afterward. Fixed by capturing the `tui` reference from the factory callback and
+   calling `tui.requestRender()` after `executeAction()`.
+
+### Repo setup
+
+Originally developed in dotfiles at `pi/.pi/agent/extensions/pi-fzf/`, then moved
+to standalone repo at `~/Code/pi-fzf`. Config file (`fzf.json`) remains in dotfiles.
+
+Extension is loaded via `settings.json`:
+```json
+{
+  "extensions": ["~/Code/pi-fzf"]
+}
+```
