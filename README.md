@@ -2,6 +2,8 @@
 
 A [Pi](https://github.com/badlogic/pi) extension for fuzzy finding. Define commands that list candidates from any shell command, then perform actions on the selected item—fill the editor, send to the agent, or run shell commands.
 
+<video src="https://github.com/kaofelix/pi-fzf/raw/main/demo.mp4" controls width="100%"></video>
+
 ## Installation
 
 ### From npm
