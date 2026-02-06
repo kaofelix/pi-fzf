@@ -2,7 +2,8 @@
   "commands": {
     "file": {
       "list": "fd --type f --max-depth 4",
-      "action": "Read and explain {{selected}}"
+      "action": "Read and explain {{selected}}",
+      "shortcut": "ctrl+shift+f"
     },
     "file-content": {
       "list": "fd --type f --max-depth 4",

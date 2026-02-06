@@ -21,6 +21,8 @@ export interface FzfCommandConfig {
   list: string;
   /** Action to perform on the selected candidate */
   action: FzfAction;
+  /** Optional keyboard shortcut (e.g. "ctrl+shift+f") */
+  shortcut?: string;
 }
 
 export interface FzfConfig {
@@ -40,6 +42,8 @@ export interface ResolvedCommand {
   name: string;
   list: string;
   action: ResolvedAction;
+  /** Optional keyboard shortcut (e.g. "ctrl+shift+f") */
+  shortcut?: string;
 }
 
 // --- Config loading ---
@@ -94,6 +98,7 @@ export function loadFzfConfig(cwd: string): ResolvedCommand[] {
     name,
     list: cmd.list,
     action: resolveAction(cmd.action),
+    shortcut: cmd.shortcut,
   }));
 }
 

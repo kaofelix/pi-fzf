@@ -170,4 +170,36 @@ describe("loadFzfConfig", () => {
     // Should not throw, may return global config only
     expect(Array.isArray(result)).toBe(true);
   });
+
+  it("loads shortcut when specified", () => {
+    writeProjectConfig({
+      commands: {
+        test: {
+          list: "ls",
+          action: "Read {{selected}}",
+          shortcut: "ctrl+shift+f",
+        },
+      },
+    });
+
+    const result = loadFzfConfig(testDir);
+    const testCmd = result.find((c) => c.name === "test");
+
+    expect(testCmd).toBeDefined();
+    expect(testCmd?.shortcut).toBe("ctrl+shift+f");
+  });
+
+  it("shortcut is undefined when not specified", () => {
+    writeProjectConfig({
+      commands: {
+        test: { list: "ls", action: "Read {{selected}}" },
+      },
+    });
+
+    const result = loadFzfConfig(testDir);
+    const testCmd = result.find((c) => c.name === "test");
+
+    expect(testCmd).toBeDefined();
+    expect(testCmd?.shortcut).toBeUndefined();
+  });
 });

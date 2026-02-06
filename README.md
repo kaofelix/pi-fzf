@@ -38,6 +38,24 @@ Each command has a `list` (shell command that outputs candidates) and an `action
 
 This registers `/fzf:file` in Pi. The `{{selected}}` placeholder is replaced with the chosen candidate.
 
+### Keyboard Shortcuts
+
+Add a `shortcut` field to trigger a command via a keyboard shortcut instead of typing `/fzf:<name>`:
+
+```json
+{
+  "commands": {
+    "file": {
+      "list": "fd --type f --max-depth 4",
+      "action": "Read and explain {{selected}}",
+      "shortcut": "ctrl+shift+f"
+    }
+  }
+}
+```
+
+The shortcut format follows Pi's [keybinding syntax](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/keybindings.md#key-format): `modifier+key` where modifiers are `ctrl`, `shift`, `alt` (combinable).
+
 ## Actions
 
 ### Editor (default)
@@ -141,6 +159,6 @@ A complete example config is available in [`examples/fzf.json`](examples/fzf.jso
 
 ## Usage
 
-1. Type `/fzf:<name>` (e.g., `/fzf:file`)
+1. Type `/fzf:<name>` (e.g., `/fzf:file`) or press the configured shortcut
 2. Type to filter candidates
 3. Use ↑/↓ to navigate, Enter to select, Escape to cancel
