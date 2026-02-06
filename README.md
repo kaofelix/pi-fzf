@@ -1,79 +1,29 @@
 # pi-fzf
 
-A [pi coding agent](https://github.com/badlogic/pi) extension that brings fzf-style fuzzy finding into the agent. Define commands in a config file, each with a shell command to generate candidates and an action to perform on the selected item.
+A [Pi](https://github.com/badlogic/pi) extension for fuzzy finding. Define commands that list candidates from any shell command, then perform actions on the selected item—fill the editor, send to the agent, or run shell commands.
 
 ## Installation
 
-1. Clone this repo somewhere (e.g., `~/Code/pi-fzf`)
-2. Install dependencies: `npm install`
-3. Add to your pi settings (`~/.pi/agent/settings.json`):
-
-```json
-{
-  "extensions": [
-    "/path/to/pi-fzf"
-  ]
-}
-```
-
-Or symlink into the extensions directory:
+### From npm
 
 ```bash
-ln -s ~/Code/pi-fzf ~/.pi/agent/extensions/pi-fzf
+pi install npm:pi-fzf
+```
+
+### From git
+
+```bash
+pi install github.com/kaofelix/pi-fzf
 ```
 
 ## Configuration
 
-Create config files to define your fuzzy finder commands:
+Create a config file to define your commands:
 
-- `~/.pi/agent/fzf.json` — global config
-- `<project>/.pi/fzf.json` — project-local (overrides global)
+- `~/.pi/agent/fzf.json` — global commands
+- `<project>/.pi/fzf.json` — project-specific (overrides global)
 
-### Config format
-
-```json
-{
-  "commands": {
-    "<name>": {
-      "list": "<bash command that outputs candidates, one per line>",
-      "action": "<action>"
-    }
-  }
-}
-```
-
-Each entry registers a `/fzf:<name>` slash command in pi.
-
-### Actions
-
-The `action` field defines what happens when you select a candidate. Use `{{selected}}` as a placeholder for the selected line.
-
-**Short form** (defaults to `editor` type):
-
-```json
-{
-  "action": "Explain the file {{selected}}"
-}
-```
-
-**Long form**:
-
-```json
-{
-  "action": {
-    "type": "editor | send | bash",
-    "template": "... {{selected}} ..."
-  }
-}
-```
-
-| Type | What it does |
-|------|--------------|
-| `editor` | Fills the pi editor. You can review and edit before sending. |
-| `send` | Sends directly to the agent. Triggers a turn immediately. |
-| `bash` | Runs a shell command. Shows result as notification. |
-
-### Example config
+Each command has a `list` (shell command that outputs candidates) and an `action` (what to do with the selection):
 
 ```json
 {
@@ -81,26 +31,116 @@ The `action` field defines what happens when you select a candidate. Use `{{sele
     "file": {
       "list": "fd --type f --max-depth 4",
       "action": "Read and explain {{selected}}"
-    },
-    "skill": {
-      "list": "find ~/.pi/agent/skills -name 'SKILL.md' | sed 's|.*/skills/||;s|/SKILL.md||'",
-      "action": { "type": "editor", "template": "/skill:{{selected}}" }
-    },
-    "branch": {
-      "list": "git branch --format='%(refname:short)'",
-      "action": { "type": "bash", "template": "git checkout {{selected}}" }
     }
   }
 }
 ```
 
+This registers `/fzf:file` in Pi. The `{{selected}}` placeholder is replaced with the chosen candidate.
+
+## Actions
+
+### Editor (default)
+
+Fills the Pi editor with text. You can review and edit before sending.
+
+```json
+"action": "Explain {{selected}}"
+```
+
+Or explicitly:
+
+```json
+"action": { "type": "editor", "template": "Explain {{selected}}" }
+```
+
+### Send
+
+Sends directly to the agent, triggering a turn immediately.
+
+```json
+"action": { "type": "send", "template": "Explain {{selected}}" }
+```
+
+### Bash
+
+Runs a shell command. By default shows the result as a notification.
+
+```json
+"action": { "type": "bash", "template": "git checkout {{selected}}" }
+```
+
+Add `output` to route the command's stdout elsewhere:
+
+| Output | Behavior |
+|--------|----------|
+| `"notify"` | Show as notification (default) |
+| `"editor"` | Put stdout in the editor |
+| `"send"` | Send stdout to the agent |
+
+```json
+"action": {
+  "type": "bash",
+  "template": "cat {{selected}}",
+  "output": "editor"
+}
+```
+
+## Examples
+
+### Find files and ask the agent to explain them
+
+```json
+"file": {
+  "list": "fd --type f --max-depth 4",
+  "action": "Read and explain {{selected}}"
+}
+```
+
+### Load a skill by name
+
+```json
+"skill": {
+  "list": "fd -L 'SKILL.md' ~/.pi/agent/skills ~/.pi/agent/git 2>/dev/null | sed -E 's|.*/skills/([^/]+)/SKILL\\.md|\\1|' | grep -v '/' | sort -u",
+  "action": { "type": "editor", "template": "/skill:{{selected}}" }
+}
+```
+
+### Switch git branches
+
+```json
+"branch": {
+  "list": "git branch --format='%(refname:short)'",
+  "action": { "type": "bash", "template": "git checkout {{selected}}" }
+}
+```
+
+### View git diff in editor
+
+```json
+"git-diff": {
+  "list": "git diff --name-only",
+  "action": {
+    "type": "bash",
+    "template": "git diff {{selected}}",
+    "output": "editor"
+  }
+}
+```
+
+### Find files with TODOs
+
+```json
+"todo": {
+  "list": "rg -l 'TODO|FIXME' || true",
+  "action": { "type": "editor", "template": "Find and fix all TODOs in {{selected}}" }
+}
+```
+
+A complete example config is available in [`examples/fzf.json`](examples/fzf.json).
+
 ## Usage
 
-1. Type `/fzf:<name>` in pi (e.g., `/fzf:file`)
-2. Type to fuzzy filter the candidates
+1. Type `/fzf:<name>` (e.g., `/fzf:file`)
+2. Type to filter candidates
 3. Use ↑/↓ to navigate, Enter to select, Escape to cancel
-4. The action runs with your selection
-
-## Why inside pi?
-
-Running bash commands from a fuzzy finder isn't special — any terminal can do that. The value is actions that **interact with the agent**: filling the editor with a prompt, sending a message, loading a skill, invoking a template.
