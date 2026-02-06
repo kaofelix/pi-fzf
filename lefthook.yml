@@ -1,0 +1,7 @@
+pre-commit:
+  commands:
+    format:
+      glob: "*.{ts,js,json}"
+      run: npx biome check --write {staged_files} && git add {staged_files}
+    test:
+      run: npm test -- --run
