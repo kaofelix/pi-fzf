@@ -1,9 +1,9 @@
+import { editorKey } from "@mariozechner/pi-coding-agent";
 import type { Focusable } from "@mariozechner/pi-tui";
 import {
   Container,
+  getEditorKeybindings,
   Input,
-  Key,
-  matchesKey,
   visibleWidth,
 } from "@mariozechner/pi-tui";
 import { extendedMatch, Fzf, type FzfResultItem } from "fzf";
@@ -75,8 +75,10 @@ export class FuzzySelector extends Container implements Focusable {
   }
 
   handleInput(data: string): void {
-    // Navigation: up/down
-    if (matchesKey(data, Key.up)) {
+    const kb = getEditorKeybindings();
+
+    // Navigation: up/down (uses selectUp/selectDown keybindings)
+    if (kb.matches(data, "selectUp")) {
       if (this.filtered.length > 0) {
         this.selectedIndex =
           this.selectedIndex === 0
@@ -86,7 +88,7 @@ export class FuzzySelector extends Container implements Focusable {
       return;
     }
 
-    if (matchesKey(data, Key.down)) {
+    if (kb.matches(data, "selectDown")) {
       if (this.filtered.length > 0) {
         this.selectedIndex =
           this.selectedIndex === this.filtered.length - 1
@@ -96,8 +98,8 @@ export class FuzzySelector extends Container implements Focusable {
       return;
     }
 
-    // Select
-    if (matchesKey(data, Key.enter)) {
+    // Select (uses selectConfirm keybinding)
+    if (kb.matches(data, "selectConfirm")) {
       const entry = this.filtered[this.selectedIndex];
       if (entry) {
         this.onSelect?.(entry.item);
@@ -105,8 +107,8 @@ export class FuzzySelector extends Container implements Focusable {
       return;
     }
 
-    // Cancel
-    if (matchesKey(data, Key.escape) || matchesKey(data, Key.ctrl("c"))) {
+    // Cancel (uses selectCancel keybinding)
+    if (kb.matches(data, "selectCancel")) {
       this.onCancel?.();
       return;
     }
@@ -212,10 +214,16 @@ export class FuzzySelector extends Container implements Focusable {
       }
     }
 
-    // Help line
+    // Help line with configured keybindings
+    const upKey = prettyKey(editorKey("selectUp"));
+    const downKey = prettyKey(editorKey("selectDown"));
+    const confirmKey = prettyKey(editorKey("selectConfirm"));
+    const cancelKey = prettyKey(editorKey("selectCancel"));
     lines.push(
       boxLine(
-        t.dim(" ↑↓ navigate • enter select • esc cancel"),
+        t.dim(
+          ` ${upKey} ${downKey} navigate • ${confirmKey} select • ${cancelKey} cancel`,
+        ),
         innerWidth,
         side,
       ),
@@ -233,6 +241,26 @@ export class FuzzySelector extends Container implements Focusable {
     super.invalidate();
     this.input.invalidate();
   }
+}
+
+const PRETTY_KEYS: Record<string, string> = {
+  up: "↑",
+  down: "↓",
+  left: "←",
+  right: "→",
+  escape: "esc",
+  enter: "⏎",
+};
+
+/**
+ * Replace well-known key names with nicer symbols (e.g. "up" → "↑").
+ * Handles composite strings like "up/ctrl+p" by replacing each segment.
+ */
+function prettyKey(key: string): string {
+  return key
+    .split("/")
+    .map((k) => PRETTY_KEYS[k] ?? k)
+    .join("/");
 }
 
 /**
