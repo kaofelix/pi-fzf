@@ -1,7 +1,6 @@
 import type {
   ExtensionAPI,
   ExtensionCommandContext,
-  ExtensionContext,
 } from "@mariozechner/pi-coding-agent";
 import type { TUI } from "@mariozechner/pi-tui";
 import { executeAction } from "./actions.js";
@@ -36,7 +35,7 @@ export default function (pi: ExtensionAPI) {
 async function runFzfSelector(
   pi: ExtensionAPI,
   cmd: ResolvedCommand,
-  ctx: ExtensionContext,
+  ctx: ExtensionCommandContext,
 ): Promise<void> {
   if (!ctx.hasUI) {
     ctx.ui.notify("fzf commands require interactive mode", "error");
@@ -119,12 +118,7 @@ async function runFzfSelector(
 
   // 3. If user selected something, execute the action
   if (selected !== null) {
-    await executeAction(
-      cmd.action,
-      selected,
-      pi,
-      ctx as ExtensionCommandContext,
-    );
+    await executeAction(cmd.action, selected, pi, ctx);
     // Explicitly request render to ensure the editor shows
     // the new text after the overlay closed
     tuiRef?.requestRender();

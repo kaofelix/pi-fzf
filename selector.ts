@@ -4,6 +4,7 @@ import {
   Container,
   getEditorKeybindings,
   Input,
+  truncateToWidth,
   visibleWidth,
 } from "@mariozechner/pi-tui";
 import { extendedMatch, Fzf, type FzfResultItem } from "fzf";
@@ -38,6 +39,7 @@ export class FuzzySelector extends Container implements Focusable {
   private maxVisible: number;
   private selectorTheme: SelectorTheme;
   private title: string;
+  private fzf: Fzf<string[]>;
 
   public onSelect?: (item: string) => void;
   public onCancel?: () => void;
@@ -70,6 +72,12 @@ export class FuzzySelector extends Container implements Focusable {
       positions: new Set<number>(),
     }));
 
+    // Fzf instance — created once since candidates don't change
+    this.fzf = new Fzf(candidates, {
+      forward: false,
+      match: extendedMatch,
+    });
+
     // Input field for fuzzy query
     this.input = new Input();
   }
@@ -94,6 +102,23 @@ export class FuzzySelector extends Container implements Focusable {
           this.selectedIndex === this.filtered.length - 1
             ? 0
             : this.selectedIndex + 1;
+      }
+      return;
+    }
+
+    if (kb.matches(data, "selectPageUp")) {
+      if (this.filtered.length > 0) {
+        this.selectedIndex = Math.max(0, this.selectedIndex - this.maxVisible);
+      }
+      return;
+    }
+
+    if (kb.matches(data, "selectPageDown")) {
+      if (this.filtered.length > 0) {
+        this.selectedIndex = Math.min(
+          this.filtered.length - 1,
+          this.selectedIndex + this.maxVisible,
+        );
       }
       return;
     }
@@ -132,11 +157,7 @@ export class FuzzySelector extends Container implements Focusable {
         positions: new Set<number>(),
       }));
     } else {
-      const fzf = new Fzf(this.candidates, {
-        forward: false,
-        match: extendedMatch,
-      });
-      const results: FzfResultItem<string>[] = fzf.find(query);
+      const results: FzfResultItem<string>[] = this.fzf.find(query);
       this.filtered = results.map((r) => ({
         item: r.item,
         positions: r.positions,
@@ -204,7 +225,9 @@ export class FuzzySelector extends Container implements Focusable {
           ? t.accent(prefix) + t.accent(highlighted)
           : prefix + highlighted;
 
-        lines.push(boxLine(content, innerWidth, side));
+        lines.push(
+          boxLine(truncateToWidth(content, innerWidth), innerWidth, side),
+        );
       }
 
       // Scroll indicator
