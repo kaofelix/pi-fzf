@@ -8,6 +8,6 @@ Perform a release for this project:
 3. Update the version in `package.json`
 4. Commit all staged and unstaged changes with a descriptive commit message
 5. Create a git tag matching the version (e.g. `v0.2.1`)
-6. Push the commit and tag to origin
+6. Push the commit and tag to origin (this triggers CI to publish to npm and create a GitHub Release with the changelog entry)
 
 Before pushing, show me the version bump, changelog entry, commit message, and tag — and ask for confirmation.
