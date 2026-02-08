@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.5.0] - 2026-02-07
+
+### Changed
+
+- Use `pasteToEditor` instead of `setEditorText` for editor actions, inserting text at cursor position rather than replacing editor contents (requires pi >= 0.52.8)
+
+### Added
+
+- GitHub Release with changelog notes created automatically on tag push
+
 ## [0.4.0] - 2026-02-07
 
 ### Added
