@@ -108,6 +108,22 @@ Add `output` to route the command's stdout elsewhere:
 
 ## Examples
 
+### Override the `@` trigger for file selection
+
+By default, typing `@` in Pi opens the autocomplete menu. You can override this to use pi-fzf for file selection instead:
+
+```json
+"file": {
+  "list": "fd --type f",
+  "action": "@{{selected}}",
+  "shortcut": "@"
+}
+```
+
+Now pressing `@` opens the fuzzy finder. Selecting a file inserts `@<filename>` into the editor, preserving Pi's file reference syntax.
+
+This works for any key: use `!`, `$`, or any character as a custom trigger for your commands.
+
 ### Find files and ask the agent to explain them
 
 ```json
