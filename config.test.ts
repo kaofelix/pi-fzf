@@ -329,6 +329,41 @@ describe("loadFzfConfig", () => {
     expect(testCmd).toBeDefined();
     expect(testCmd?.placement).toBe("aboveEditor");
   });
+
+  it("loads hideHeader when specified", () => {
+    writeProjectConfig({
+      commands: {
+        test: {
+          list: "ls",
+          action: "Read {{selected}}",
+          hideHeader: true,
+        },
+      },
+    });
+
+    const result = loadFzfConfig(testDir);
+    const testCmd = result.find((c) => c.name === "test");
+
+    expect(testCmd).toBeDefined();
+    expect(testCmd?.hideHeader).toBe(true);
+  });
+
+  it("defaults hideHeader to false", () => {
+    writeProjectConfig({
+      commands: {
+        test: {
+          list: "ls",
+          action: "Read {{selected}}",
+        },
+      },
+    });
+
+    const result = loadFzfConfig(testDir);
+    const testCmd = result.find((c) => c.name === "test");
+
+    expect(testCmd).toBeDefined();
+    expect(testCmd?.hideHeader).toBe(false);
+  });
 });
 
 describe("loadFzfSettings", () => {

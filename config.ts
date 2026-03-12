@@ -28,6 +28,8 @@ export interface FzfCommandConfig {
   preview?: string;
   /** Where the selector should render (default: "overlay") */
   placement?: SelectorPlacement;
+  /** Hide selector header/title line (defaults to false) */
+  hideHeader?: boolean;
 }
 
 export interface FzfSettingsConfig {
@@ -65,6 +67,8 @@ export interface ResolvedCommand {
   preview?: string;
   /** Where the selector widget should render */
   placement: SelectorPlacement;
+  /** Hide selector header/title line */
+  hideHeader: boolean;
 }
 
 export interface FzfSettings {
@@ -143,6 +147,7 @@ export function loadFzfConfig(cwd: string): ResolvedCommand[] {
     shortcut: cmd.shortcut,
     preview: cmd.preview,
     placement: cmd.placement ?? defaultPlacement,
+    hideHeader: cmd.hideHeader ?? false,
   }));
 }
 

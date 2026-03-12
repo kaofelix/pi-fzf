@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- New per-command `hideHeader` option to hide the selector title line (`fzf:<name>`) in all placements (`overlay`, `aboveEditor`, `belowEditor`)
+
 ## [0.7.0] - 2026-03-12
 
 ### Added

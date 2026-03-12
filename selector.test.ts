@@ -91,6 +91,23 @@ describe("FuzzySelector", () => {
       expect(lines[0]).not.toMatch(/─/);
       expect(lines[lines.length - 1]).not.toMatch(/─/);
     });
+
+    it("can hide header/title line", () => {
+      const selector = new FuzzySelector(
+        ["item1", "item2"],
+        "fzf:test",
+        10,
+        mockTheme,
+        undefined,
+        undefined,
+        { showTitle: false },
+      );
+
+      const lines = selector.render(80);
+      const hasTitle = lines.some((l) => l.includes("fzf:test"));
+
+      expect(hasTitle).toBe(false);
+    });
   });
 
   describe("two-pane layout (with preview)", () => {

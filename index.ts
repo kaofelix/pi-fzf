@@ -117,12 +117,14 @@ async function runFzfSelector(
               // Blend widget into editor seam.
               showTopBorder: cmd.placement !== "belowEditor",
               showBottomBorder: cmd.placement !== "aboveEditor",
+              showTitle: !cmd.hideHeader,
             }
           : {
               // Overlay keeps the classic floating panel framing.
               sideBorders: true,
               showTopBorder: true,
               showBottomBorder: true,
+              showTitle: !cmd.hideHeader,
             },
       );
 

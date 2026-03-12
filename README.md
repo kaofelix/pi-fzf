@@ -109,6 +109,22 @@ Allowed values:
 
 Precedence: `command.placement` → `defaultPlacement` → `"overlay"`.
 
+### Hide Header
+
+Set `hideHeader: true` on a command to hide the selector title line (`fzf:<name>`).
+
+```json
+{
+  "commands": {
+    "file": {
+      "list": "fd --type f --max-depth 4",
+      "action": "Read and explain {{selected}}",
+      "hideHeader": true
+    }
+  }
+}
+```
+
 ## Preview Pane
 
 Commands can optionally display a preview pane showing content for the selected candidate. Add a `preview` field with a command template:

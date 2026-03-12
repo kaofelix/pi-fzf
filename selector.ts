@@ -29,6 +29,7 @@ export interface SelectorRenderOptions {
   sideBorders?: boolean;
   showTopBorder?: boolean;
   showBottomBorder?: boolean;
+  showTitle?: boolean;
 }
 
 /**
@@ -59,6 +60,7 @@ export class FuzzySelector extends Container implements Focusable {
   private sideBorders: boolean;
   private showTopBorder: boolean;
   private showBottomBorder: boolean;
+  private showTitle: boolean;
 
   public onSelect?: (item: string) => void;
   public onCancel?: () => void;
@@ -140,6 +142,7 @@ export class FuzzySelector extends Container implements Focusable {
     this.sideBorders = options?.sideBorders ?? true;
     this.showTopBorder = options?.showTopBorder ?? true;
     this.showBottomBorder = options?.showBottomBorder ?? true;
+    this.showTitle = options?.showTitle ?? true;
 
     // Initial unfiltered list
     this.filtered = candidates.map((item) => ({
@@ -294,7 +297,9 @@ export class FuzzySelector extends Container implements Focusable {
     }
 
     // Title
-    lines.push(boxLine(` ${t.accent(t.bold(this.title))}`, innerWidth, side));
+    if (this.showTitle) {
+      lines.push(boxLine(` ${t.accent(t.bold(this.title))}`, innerWidth, side));
+    }
 
     // Input field — render then wrap each line in side borders
     const inputLines = this.input.render(innerWidth);
