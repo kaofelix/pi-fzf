@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Restore selector compatibility with pi 0.61 keybinding APIs so `fzf` selectors render instead of crashing on startup
+
 ## [0.8.0] - 2026-03-13
 
 ### Added

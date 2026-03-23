@@ -1,8 +1,8 @@
-import { editorKey } from "@mariozechner/pi-coding-agent";
+import * as piAgent from "@mariozechner/pi-coding-agent";
 import type { Focusable, KeyId } from "@mariozechner/pi-tui";
+import * as piTui from "@mariozechner/pi-tui";
 import {
   Container,
-  getEditorKeybindings,
   Input,
   matchesKey,
   truncateToWidth,
@@ -161,10 +161,10 @@ export class FuzzySelector extends Container implements Focusable {
   }
 
   handleInput(data: string): void {
-    const kb = getEditorKeybindings();
+    const kb = getSelectorKeybindings();
 
-    // Navigation: up/down (uses selectUp/selectDown keybindings)
-    if (kb.matches(data, "selectUp")) {
+    // Navigation: up/down (supports current and legacy pi keybinding ids)
+    if (matchesBinding(kb, data, "tui.select.up", "selectUp")) {
       if (this.filtered.length > 0) {
         this.selectedIndex =
           this.selectedIndex === 0
@@ -176,7 +176,7 @@ export class FuzzySelector extends Container implements Focusable {
       return;
     }
 
-    if (kb.matches(data, "selectDown")) {
+    if (matchesBinding(kb, data, "tui.select.down", "selectDown")) {
       if (this.filtered.length > 0) {
         this.selectedIndex =
           this.selectedIndex === this.filtered.length - 1
@@ -188,7 +188,7 @@ export class FuzzySelector extends Container implements Focusable {
       return;
     }
 
-    if (kb.matches(data, "selectPageUp")) {
+    if (matchesBinding(kb, data, "tui.select.pageUp", "selectPageUp")) {
       if (this.filtered.length > 0) {
         this.selectedIndex = Math.max(0, this.selectedIndex - this.maxVisible);
       }
@@ -197,7 +197,7 @@ export class FuzzySelector extends Container implements Focusable {
       return;
     }
 
-    if (kb.matches(data, "selectPageDown")) {
+    if (matchesBinding(kb, data, "tui.select.pageDown", "selectPageDown")) {
       if (this.filtered.length > 0) {
         this.selectedIndex = Math.min(
           this.filtered.length - 1,
@@ -231,8 +231,8 @@ export class FuzzySelector extends Container implements Focusable {
       }
     }
 
-    // Select (uses selectConfirm keybinding)
-    if (kb.matches(data, "selectConfirm")) {
+    // Select (supports current and legacy pi keybinding ids)
+    if (matchesBinding(kb, data, "tui.select.confirm", "selectConfirm")) {
       const entry = this.filtered[this.selectedIndex];
       if (entry) {
         this.onSelect?.(entry.item);
@@ -240,8 +240,8 @@ export class FuzzySelector extends Container implements Focusable {
       return;
     }
 
-    // Cancel (uses selectCancel keybinding)
-    if (kb.matches(data, "selectCancel")) {
+    // Cancel (supports current and legacy pi keybinding ids)
+    if (matchesBinding(kb, data, "tui.select.cancel", "selectCancel")) {
       this.onCancel?.();
       return;
     }
@@ -398,10 +398,10 @@ export class FuzzySelector extends Container implements Focusable {
       }
 
       // Help line
-      const upKey = prettyKey(editorKey("selectUp"));
-      const downKey = prettyKey(editorKey("selectDown"));
-      const confirmKey = prettyKey(editorKey("selectConfirm"));
-      const cancelKey = prettyKey(editorKey("selectCancel"));
+      const upKey = keyLabel("tui.select.up", "selectUp", "↑");
+      const downKey = keyLabel("tui.select.down", "selectDown", "↓");
+      const confirmKey = keyLabel("tui.select.confirm", "selectConfirm", "⏎");
+      const cancelKey = keyLabel("tui.select.cancel", "selectCancel", "esc");
       const helpText = this.previewTemplate
         ? ` ${upKey} ${downKey} nav • ${confirmKey} select • ${cancelKey} cancel • shift+↑↓ scroll preview`
         : ` ${upKey} ${downKey} navigate • ${confirmKey} select • ${cancelKey} cancel`;
@@ -452,10 +452,10 @@ export class FuzzySelector extends Container implements Focusable {
       }
 
       // Help line
-      const upKey = prettyKey(editorKey("selectUp"));
-      const downKey = prettyKey(editorKey("selectDown"));
-      const confirmKey = prettyKey(editorKey("selectConfirm"));
-      const cancelKey = prettyKey(editorKey("selectCancel"));
+      const upKey = keyLabel("tui.select.up", "selectUp", "↑");
+      const downKey = keyLabel("tui.select.down", "selectDown", "↓");
+      const confirmKey = keyLabel("tui.select.confirm", "selectConfirm", "⏎");
+      const cancelKey = keyLabel("tui.select.cancel", "selectCancel", "esc");
       lines.push(
         boxLine(
           t.dim(
@@ -483,6 +483,88 @@ export class FuzzySelector extends Container implements Focusable {
     super.invalidate();
     this.input.invalidate();
   }
+}
+
+function getSelectorKeybindings(): {
+  matches: (data: string, id: string) => boolean;
+  getKeys?: (id: string) => string[];
+} {
+  const getKeybindings = (
+    piTui as {
+      getKeybindings?: () => {
+        matches: (data: string, id: string) => boolean;
+        getKeys?: (id: string) => string[];
+      };
+    }
+  ).getKeybindings;
+  if (typeof getKeybindings === "function") {
+    return getKeybindings();
+  }
+
+  const getEditorKeybindings = (
+    piTui as {
+      getEditorKeybindings?: () => {
+        matches: (data: string, id: string) => boolean;
+        getKeys?: (id: string) => string[];
+      };
+    }
+  ).getEditorKeybindings;
+  if (typeof getEditorKeybindings === "function") {
+    return getEditorKeybindings();
+  }
+
+  return {
+    matches: (data: string, id: string) => matchesKey(data, id as KeyId),
+    getKeys: (id: string) => [id],
+  };
+}
+
+function matchesBinding(
+  keybindings: { matches: (data: string, id: string) => boolean },
+  data: string,
+  namespacedId: string,
+  legacyId: string,
+): boolean {
+  return (
+    keybindings.matches(data, namespacedId) ||
+    keybindings.matches(data, legacyId)
+  );
+}
+
+function keyLabel(
+  namespacedId: string,
+  legacyId: string,
+  fallback: string,
+): string {
+  try {
+    const keys = getSelectorKeybindings().getKeys?.(namespacedId);
+    if (keys && keys.length > 0) {
+      return prettyKey(keys.join("/"));
+    }
+  } catch {
+    // Fall through to coding-agent helpers.
+  }
+
+  try {
+    const keyText = (piAgent as { keyText?: (id: string) => string }).keyText;
+    if (typeof keyText === "function") {
+      return prettyKey(keyText(namespacedId));
+    }
+  } catch {
+    // Fall through to legacy/fallback handling.
+  }
+
+  try {
+    const editorKey = (piAgent as { editorKey?: (id: string) => string })
+      .editorKey;
+    if (typeof editorKey === "function") {
+      return prettyKey(editorKey(legacyId));
+    }
+  } catch {
+    // Fall through to fallback.
+  }
+
+  return fallback;
 }
 
 const PRETTY_KEYS: Record<string, string> = {
