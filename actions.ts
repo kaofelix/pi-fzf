@@ -2,7 +2,7 @@ import type {
   ExtensionAPI,
   ExtensionCommandContext,
 } from "@mariozechner/pi-coding-agent";
-import type { ResolvedAction } from "./config.js";
+import type { ResolvedAction, SelectionValue } from "./config.js";
 import { renderTemplate } from "./config.js";
 
 /**
@@ -10,7 +10,7 @@ import { renderTemplate } from "./config.js";
  */
 export async function executeAction(
   action: ResolvedAction,
-  selected: string,
+  selected: SelectionValue,
   pi: ExtensionAPI,
   ctx: ExtensionCommandContext,
 ): Promise<void> {

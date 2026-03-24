@@ -562,4 +562,107 @@ describe("FuzzySelector", () => {
       expect(helpLine).not.toMatch(/shift.*scroll|preview/i);
     });
   });
+
+  describe("multi-select", () => {
+    it("marks items with tab and accepts them with enter", () => {
+      const onSelect = vi.fn();
+      const selector = new FuzzySelector(
+        ["item1", "item2", "item3"],
+        "fzf:test",
+        10,
+        mockTheme,
+        undefined,
+        undefined,
+        { multiSelect: true },
+      );
+
+      selector.onSelect = onSelect;
+
+      selector.handleInput("\t");
+      selector.handleInput("\t");
+      selector.handleInput("\r");
+
+      expect(onSelect).toHaveBeenCalledWith(["item1", "item2"]);
+    });
+
+    it("falls back to the current item when nothing is marked", () => {
+      const onSelect = vi.fn();
+      const selector = new FuzzySelector(
+        ["item1", "item2"],
+        "fzf:test",
+        10,
+        mockTheme,
+        undefined,
+        undefined,
+        { multiSelect: true },
+      );
+
+      selector.onSelect = onSelect;
+      selector.handleInput("\r");
+
+      expect(onSelect).toHaveBeenCalledWith("item1");
+    });
+
+    it("renders selected count and tab hint when items are marked", () => {
+      const selector = new FuzzySelector(
+        ["item1", "item2"],
+        "fzf:test",
+        10,
+        mockTheme,
+        undefined,
+        undefined,
+        { multiSelect: true },
+      );
+
+      selector.handleInput("\t");
+      const lines = selector.render(80);
+
+      expect(lines.some((l) => l.includes("1 selected"))).toBe(true);
+      expect(lines.some((l) => l.toLowerCase().includes("toggle"))).toBe(true);
+    });
+
+    it("toggles the current item off with shift+tab", () => {
+      const onSelect = vi.fn();
+      const selector = new FuzzySelector(
+        ["item1", "item2", "item3"],
+        "fzf:test",
+        10,
+        mockTheme,
+        undefined,
+        undefined,
+        { multiSelect: true },
+      );
+
+      selector.onSelect = onSelect;
+
+      selector.handleInput("\t"); // mark item1, move to item2
+      selector.handleInput("\x1b[A"); // back to item1
+      selector.handleInput("\x1b[Z"); // shift+tab toggles item1 off, moves to item3
+      selector.handleInput("\r");
+
+      expect(onSelect).toHaveBeenCalledWith("item3");
+    });
+
+    it("toggles the current item off with tab", () => {
+      const onSelect = vi.fn();
+      const selector = new FuzzySelector(
+        ["item1", "item2", "item3"],
+        "fzf:test",
+        10,
+        mockTheme,
+        undefined,
+        undefined,
+        { multiSelect: true },
+      );
+
+      selector.onSelect = onSelect;
+
+      selector.handleInput("\t"); // mark item1, move to item2
+      selector.handleInput("\x1b[A"); // back to item1
+      selector.handleInput("\t"); // toggle item1 off, move to item2
+      selector.handleInput("\r");
+
+      expect(onSelect).toHaveBeenCalledWith("item2");
+    });
+  });
 });
