@@ -73,6 +73,7 @@ export class FuzzySelector extends Container implements Focusable {
 
   // --- Preview callbacks ---
   public onPreviewRequest?: (candidate: string) => Promise<string[]>;
+  public onPreviewUpdate?: () => void;
 
   // --- Focusable ---
   private _focused = false;
@@ -85,15 +86,22 @@ export class FuzzySelector extends Container implements Focusable {
   }
 
   // --- Preview methods ---
+  private notifyPreviewUpdate(): void {
+    this.invalidate();
+    this.onPreviewUpdate?.();
+  }
+
   setPreviewContent(lines: string[]): void {
     this.previewContent = lines;
     this.previewError = null;
     // NOTE: Do not reset lastPreviewedCandidate here - it's used to
     // deduplicate requests when typing filters the same candidate
+    this.notifyPreviewUpdate();
   }
 
   setPreviewError(error: string): void {
     this.previewError = error;
+    this.notifyPreviewUpdate();
   }
 
   /**
