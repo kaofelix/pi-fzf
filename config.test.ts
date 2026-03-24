@@ -29,6 +29,18 @@ describe("renderTemplate", () => {
   it("returns template unchanged if no placeholder", () => {
     expect(renderTemplate("no placeholder", "ignored")).toBe("no placeholder");
   });
+
+  it("joins multiple selections with newlines", () => {
+    expect(renderTemplate("files:\n{{selected}}", ["foo.ts", "bar.ts"])).toBe(
+      "files:\nfoo.ts\nbar.ts",
+    );
+  });
+
+  it("trims each value in a multi-selection", () => {
+    expect(renderTemplate("{{selected}}", ["  foo.ts  ", " bar.ts "])).toBe(
+      "foo.ts\nbar.ts",
+    );
+  });
 });
 
 describe("resolveAction", () => {
@@ -363,6 +375,41 @@ describe("loadFzfConfig", () => {
 
     expect(testCmd).toBeDefined();
     expect(testCmd?.hideHeader).toBe(false);
+  });
+
+  it("loads multiSelect when specified", () => {
+    writeProjectConfig({
+      commands: {
+        test: {
+          list: "ls",
+          action: "Read {{selected}}",
+          multiSelect: true,
+        },
+      },
+    });
+
+    const result = loadFzfConfig(testDir);
+    const testCmd = result.find((c) => c.name === "test");
+
+    expect(testCmd).toBeDefined();
+    expect(testCmd?.multiSelect).toBe(true);
+  });
+
+  it("defaults multiSelect to false", () => {
+    writeProjectConfig({
+      commands: {
+        test: {
+          list: "ls",
+          action: "Read {{selected}}",
+        },
+      },
+    });
+
+    const result = loadFzfConfig(testDir);
+    const testCmd = result.find((c) => c.name === "test");
+
+    expect(testCmd).toBeDefined();
+    expect(testCmd?.multiSelect).toBe(false);
   });
 });
 

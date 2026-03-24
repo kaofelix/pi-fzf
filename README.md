@@ -125,6 +125,32 @@ Set `hideHeader: true` on a command to hide the selector title line (`fzf:<name>
 }
 ```
 
+### Multi-select
+
+Set `multiSelect: true` on a command to enable the fzf-style Tab workflow:
+
+- `Tab` — toggle the current item and move down
+- `Shift+Tab` — toggle the current item and move up
+- `Enter` — accept all marked items (or just the current item if nothing is marked)
+
+When multiple items are accepted, `{{selected}}` becomes a newline-separated list. For bash actions, you can pipe that through tools like `xargs`.
+
+```json
+{
+  "commands": {
+    "git-diff": {
+      "list": "git diff --name-only",
+      "multiSelect": true,
+      "action": {
+        "type": "bash",
+        "template": "printf '%s\\n' '{{selected}}' | xargs -I{} git diff -- \"{}\"",
+        "output": "editor"
+      }
+    }
+  }
+}
+```
+
 ## Preview Pane
 
 Commands can optionally display a preview pane showing content for the selected candidate. Add a `preview` field with a command template:

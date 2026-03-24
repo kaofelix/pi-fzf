@@ -4,7 +4,7 @@ import type {
 } from "@mariozechner/pi-coding-agent";
 import type { TUI } from "@mariozechner/pi-tui";
 import { executeAction } from "./actions.js";
-import type { FzfSettings, ResolvedCommand } from "./config.js";
+import type { FzfSettings, ResolvedCommand, SelectionValue } from "./config.js";
 import { loadFzfConfig, loadFzfSettings } from "./config.js";
 import { type ExecFunction, runPreviewCommand } from "./preview.js";
 import type { SelectorTheme } from "./selector.js";
@@ -98,7 +98,7 @@ async function runFzfSelector(
           overlay: true,
         };
 
-  const selected = await ctx.ui.custom<string | null>(
+  const selected = await ctx.ui.custom<SelectionValue | null>(
     (tui, theme, _kb, done) => {
       tuiRef = tui;
 
@@ -130,6 +130,7 @@ async function runFzfSelector(
               showTopBorder: cmd.placement !== "belowEditor",
               showBottomBorder: cmd.placement !== "aboveEditor",
               showTitle: !cmd.hideHeader,
+              multiSelect: cmd.multiSelect,
             }
           : {
               // Overlay keeps the classic floating panel framing.
@@ -137,6 +138,7 @@ async function runFzfSelector(
               showTopBorder: true,
               showBottomBorder: true,
               showTitle: !cmd.hideHeader,
+              multiSelect: cmd.multiSelect,
             },
       );
 

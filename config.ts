@@ -30,6 +30,8 @@ export interface FzfCommandConfig {
   placement?: SelectorPlacement;
   /** Hide selector header/title line (defaults to false) */
   hideHeader?: boolean;
+  /** Enable multi-select mode (Tab marks items, Enter accepts them) */
+  multiSelect?: boolean;
 }
 
 export interface FzfSettingsConfig {
@@ -69,6 +71,8 @@ export interface ResolvedCommand {
   placement: SelectorPlacement;
   /** Hide selector header/title line */
   hideHeader: boolean;
+  /** Enable multi-select mode (Tab marks items, Enter accepts them) */
+  multiSelect: boolean;
 }
 
 export interface FzfSettings {
@@ -148,6 +152,7 @@ export function loadFzfConfig(cwd: string): ResolvedCommand[] {
     preview: cmd.preview,
     placement: cmd.placement ?? defaultPlacement,
     hideHeader: cmd.hideHeader ?? false,
+    multiSelect: cmd.multiSelect ?? false,
   }));
 }
 
@@ -182,9 +187,26 @@ export function loadFzfSettings(cwd: string): FzfSettings {
   };
 }
 
+export type SelectionValue = string | string[];
+
+function normalizeSelection(selected: SelectionValue): string[] {
+  return (Array.isArray(selected) ? selected : [selected]).map((value) =>
+    value.trim(),
+  );
+}
+
 /**
  * Replace {{selected}} placeholder in a template with the selected value.
+ *
+ * When multiple values are selected, {{selected}} becomes a newline-separated
+ * list in the order the candidates were originally listed.
  */
-export function renderTemplate(template: string, selected: string): string {
-  return template.replaceAll("{{selected}}", selected.trim());
+export function renderTemplate(
+  template: string,
+  selected: SelectionValue,
+): string {
+  return template.replaceAll(
+    "{{selected}}",
+    normalizeSelection(selected).join("\n"),
+  );
 }
