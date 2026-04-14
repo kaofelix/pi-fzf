@@ -2,7 +2,7 @@ import { keyText } from "@mariozechner/pi-coding-agent";
 import type { Focusable, KeyId } from "@mariozechner/pi-tui";
 import {
   Container,
-  getEditorKeybindings,
+  getKeybindings,
   Input,
   matchesKey,
   truncateToWidth,
@@ -161,10 +161,10 @@ export class FuzzySelector extends Container implements Focusable {
   }
 
   handleInput(data: string): void {
-    const kb = getEditorKeybindings();
+    const kb = getKeybindings();
 
-    // Navigation: up/down (uses selectUp/selectDown keybindings)
-    if (kb.matches(data, "selectUp")) {
+    // Navigation: up/down (uses configured selection keybindings)
+    if (kb.matches(data, "tui.select.up")) {
       if (this.filtered.length > 0) {
         this.selectedIndex =
           this.selectedIndex === 0
@@ -176,7 +176,7 @@ export class FuzzySelector extends Container implements Focusable {
       return;
     }
 
-    if (kb.matches(data, "selectDown")) {
+    if (kb.matches(data, "tui.select.down")) {
       if (this.filtered.length > 0) {
         this.selectedIndex =
           this.selectedIndex === this.filtered.length - 1
@@ -188,7 +188,7 @@ export class FuzzySelector extends Container implements Focusable {
       return;
     }
 
-    if (kb.matches(data, "selectPageUp")) {
+    if (kb.matches(data, "tui.select.pageUp")) {
       if (this.filtered.length > 0) {
         this.selectedIndex = Math.max(0, this.selectedIndex - this.maxVisible);
       }
@@ -197,7 +197,7 @@ export class FuzzySelector extends Container implements Focusable {
       return;
     }
 
-    if (kb.matches(data, "selectPageDown")) {
+    if (kb.matches(data, "tui.select.pageDown")) {
       if (this.filtered.length > 0) {
         this.selectedIndex = Math.min(
           this.filtered.length - 1,
@@ -231,8 +231,8 @@ export class FuzzySelector extends Container implements Focusable {
       }
     }
 
-    // Select (uses selectConfirm keybinding)
-    if (kb.matches(data, "selectConfirm")) {
+    // Select
+    if (kb.matches(data, "tui.select.confirm")) {
       const entry = this.filtered[this.selectedIndex];
       if (entry) {
         this.onSelect?.(entry.item);
@@ -240,8 +240,8 @@ export class FuzzySelector extends Container implements Focusable {
       return;
     }
 
-    // Cancel (uses selectCancel keybinding)
-    if (kb.matches(data, "selectCancel")) {
+    // Cancel
+    if (kb.matches(data, "tui.select.cancel")) {
       this.onCancel?.();
       return;
     }
