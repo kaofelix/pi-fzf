@@ -1,4 +1,4 @@
-import { editorKey } from "@mariozechner/pi-coding-agent";
+import { keyText } from "@mariozechner/pi-coding-agent";
 import type { Focusable, KeyId } from "@mariozechner/pi-tui";
 import {
   Container,
@@ -398,10 +398,10 @@ export class FuzzySelector extends Container implements Focusable {
       }
 
       // Help line
-      const upKey = prettyKey(editorKey("selectUp"));
-      const downKey = prettyKey(editorKey("selectDown"));
-      const confirmKey = prettyKey(editorKey("selectConfirm"));
-      const cancelKey = prettyKey(editorKey("selectCancel"));
+      const upKey = prettyKey(keyText("tui.select.up"));
+      const downKey = prettyKey(keyText("tui.select.down"));
+      const confirmKey = prettyKey(keyText("tui.select.confirm"));
+      const cancelKey = prettyKey(keyText("tui.select.cancel"));
       const helpText = this.previewTemplate
         ? ` ${upKey} ${downKey} nav • ${confirmKey} select • ${cancelKey} cancel • shift+↑↓ scroll preview`
         : ` ${upKey} ${downKey} navigate • ${confirmKey} select • ${cancelKey} cancel`;
@@ -452,10 +452,10 @@ export class FuzzySelector extends Container implements Focusable {
       }
 
       // Help line
-      const upKey = prettyKey(editorKey("selectUp"));
-      const downKey = prettyKey(editorKey("selectDown"));
-      const confirmKey = prettyKey(editorKey("selectConfirm"));
-      const cancelKey = prettyKey(editorKey("selectCancel"));
+      const upKey = prettyKey(keyText("tui.select.up"));
+      const downKey = prettyKey(keyText("tui.select.down"));
+      const confirmKey = prettyKey(keyText("tui.select.confirm"));
+      const cancelKey = prettyKey(keyText("tui.select.cancel"));
       lines.push(
         boxLine(
           t.dim(

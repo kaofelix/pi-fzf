@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Fix selector help text crash on current pi versions by using the supported `keyText()` API for configured keybinding labels
+
 ## [0.8.0] - 2026-03-13
 
 ### Added
