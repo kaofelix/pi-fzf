@@ -15,7 +15,7 @@ pi install npm:pi-fzf
 ### From git
 
 ```bash
-pi install github.com/kaofelix/pi-fzf
+pi install git:github.com/kaofelix/pi-fzf
 ```
 
 ## Dependencies

@@ -527,6 +527,27 @@ describe("FuzzySelector", () => {
       expect(onPreviewRequest).toHaveBeenCalledTimes(2);
       expect(onPreviewRequest).toHaveBeenLastCalledWith("banana");
     });
+
+    it("notifies when async preview content finishes loading", async () => {
+      const onPreviewRequest = vi.fn().mockResolvedValue(["preview content"]);
+      const onPreviewUpdate = vi.fn();
+      const selector = new FuzzySelector(
+        ["item1", "item2"],
+        "fzf:test",
+        10,
+        mockTheme,
+        "cat {{selected}}",
+      );
+
+      selector.onPreviewRequest = onPreviewRequest;
+      selector.onPreviewUpdate = onPreviewUpdate;
+      await selector.triggerInitialPreview();
+
+      expect(onPreviewUpdate).toHaveBeenCalledTimes(1);
+      expect(
+        selector.render(80).some((l) => l.includes("preview content")),
+      ).toBe(true);
+    });
   });
 
   describe("preview help text", () => {

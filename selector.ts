@@ -1,8 +1,7 @@
-import { editorKey } from "@mariozechner/pi-coding-agent";
 import type { Focusable, KeyId } from "@mariozechner/pi-tui";
+import * as PiTui from "@mariozechner/pi-tui";
 import {
   Container,
-  getEditorKeybindings,
   Input,
   matchesKey,
   truncateToWidth,
@@ -31,6 +30,70 @@ export interface SelectorRenderOptions {
   showBottomBorder?: boolean;
   showTitle?: boolean;
   multiSelect?: boolean;
+}
+
+type KeybindingsLike = {
+  matches: (data: string, keybinding: string) => boolean;
+  getKeys?: (keybinding: string) => string[];
+};
+
+const SELECT_KEYBINDINGS = {
+  selectUp: ["tui.select.up", "selectUp"],
+  selectDown: ["tui.select.down", "selectDown"],
+  selectPageUp: ["tui.select.pageUp", "selectPageUp"],
+  selectPageDown: ["tui.select.pageDown", "selectPageDown"],
+  selectConfirm: ["tui.select.confirm", "selectConfirm"],
+  selectCancel: ["tui.select.cancel", "selectCancel"],
+} as const;
+
+type SelectKeybinding = keyof typeof SELECT_KEYBINDINGS;
+
+const DEFAULT_SELECT_KEYS: Record<SelectKeybinding, string[]> = {
+  selectUp: ["up"],
+  selectDown: ["down"],
+  selectPageUp: ["pageUp"],
+  selectPageDown: ["pageDown"],
+  selectConfirm: ["enter"],
+  selectCancel: ["escape", "ctrl+c"],
+};
+
+function resolveKeybindings(
+  keybindings?: KeybindingsLike,
+): KeybindingsLike | undefined {
+  if (keybindings) return keybindings;
+  if (typeof PiTui.getKeybindings === "function") {
+    return PiTui.getKeybindings() as KeybindingsLike;
+  }
+  if (typeof PiTui.getEditorKeybindings === "function") {
+    return PiTui.getEditorKeybindings() as KeybindingsLike;
+  }
+  return undefined;
+}
+
+function matchesSelectKey(
+  keybindings: KeybindingsLike | undefined,
+  data: string,
+  keybinding: SelectKeybinding,
+): boolean {
+  if (!keybindings) return false;
+  return SELECT_KEYBINDINGS[keybinding].some((id) =>
+    keybindings.matches(data, id),
+  );
+}
+
+function getSelectKeyText(
+  keybindings: KeybindingsLike | undefined,
+  keybinding: SelectKeybinding,
+): string {
+  if (keybindings?.getKeys) {
+    for (const id of SELECT_KEYBINDINGS[keybinding]) {
+      const keys = keybindings.getKeys(id);
+      if (keys.length > 0) {
+        return keys.join("/");
+      }
+    }
+  }
+  return DEFAULT_SELECT_KEYS[keybinding].join("/");
 }
 
 /**
@@ -64,6 +127,7 @@ export class FuzzySelector extends Container implements Focusable {
   private showTitle: boolean;
   private multiSelect: boolean;
   private markedItems = new Set<string>();
+  private keybindings: KeybindingsLike | undefined;
 
   public onSelect?: (item: SelectionValue) => void;
   public onCancel?: () => void;
@@ -76,6 +140,7 @@ export class FuzzySelector extends Container implements Focusable {
 
   // --- Preview callbacks ---
   public onPreviewRequest?: (candidate: string) => Promise<string[]>;
+  public onPreviewUpdate?: () => void;
 
   // --- Focusable ---
   private _focused = false;
@@ -88,15 +153,22 @@ export class FuzzySelector extends Container implements Focusable {
   }
 
   // --- Preview methods ---
+  private notifyPreviewUpdate(): void {
+    this.invalidate();
+    this.onPreviewUpdate?.();
+  }
+
   setPreviewContent(lines: string[]): void {
     this.previewContent = lines;
     this.previewError = null;
     // NOTE: Do not reset lastPreviewedCandidate here - it's used to
     // deduplicate requests when typing filters the same candidate
+    this.notifyPreviewUpdate();
   }
 
   setPreviewError(error: string): void {
     this.previewError = error;
+    this.notifyPreviewUpdate();
   }
 
   /**
@@ -134,6 +206,7 @@ export class FuzzySelector extends Container implements Focusable {
     previewTemplate?: string,
     settings?: FzfSettings,
     options?: SelectorRenderOptions,
+    keybindings?: KeybindingsLike,
   ) {
     super();
     this.candidates = candidates;
@@ -147,6 +220,7 @@ export class FuzzySelector extends Container implements Focusable {
     this.showBottomBorder = options?.showBottomBorder ?? true;
     this.showTitle = options?.showTitle ?? true;
     this.multiSelect = options?.multiSelect ?? false;
+    this.keybindings = resolveKeybindings(keybindings);
 
     // Initial unfiltered list
     this.filtered = candidates.map((item) => ({
@@ -221,25 +295,25 @@ export class FuzzySelector extends Container implements Focusable {
   }
 
   handleInput(data: string): void {
-    const kb = getEditorKeybindings();
+    const kb = this.keybindings;
 
     // Navigation: up/down (uses selectUp/selectDown keybindings)
-    if (kb.matches(data, "selectUp")) {
+    if (matchesSelectKey(kb, data, "selectUp")) {
       this.moveSelection(-1);
       return;
     }
 
-    if (kb.matches(data, "selectDown")) {
+    if (matchesSelectKey(kb, data, "selectDown")) {
       this.moveSelection(1);
       return;
     }
 
-    if (kb.matches(data, "selectPageUp")) {
+    if (matchesSelectKey(kb, data, "selectPageUp")) {
       this.moveSelection(-this.maxVisible, false);
       return;
     }
 
-    if (kb.matches(data, "selectPageDown")) {
+    if (matchesSelectKey(kb, data, "selectPageDown")) {
       this.moveSelection(this.maxVisible, false);
       return;
     }
@@ -279,7 +353,7 @@ export class FuzzySelector extends Container implements Focusable {
     }
 
     // Select (uses selectConfirm keybinding)
-    if (kb.matches(data, "selectConfirm")) {
+    if (matchesSelectKey(kb, data, "selectConfirm")) {
       const selection = this.getAcceptedSelection();
       if (selection) {
         this.onSelect?.(selection);
@@ -288,7 +362,7 @@ export class FuzzySelector extends Container implements Focusable {
     }
 
     // Cancel (uses selectCancel keybinding)
-    if (kb.matches(data, "selectCancel")) {
+    if (matchesSelectKey(kb, data, "selectCancel")) {
       this.onCancel?.();
       return;
     }
@@ -438,10 +512,16 @@ export class FuzzySelector extends Container implements Focusable {
       }
 
       // Help line
-      const upKey = prettyKey(editorKey("selectUp"));
-      const downKey = prettyKey(editorKey("selectDown"));
-      const confirmKey = prettyKey(editorKey("selectConfirm"));
-      const cancelKey = prettyKey(editorKey("selectCancel"));
+      const upKey = prettyKey(getSelectKeyText(this.keybindings, "selectUp"));
+      const downKey = prettyKey(
+        getSelectKeyText(this.keybindings, "selectDown"),
+      );
+      const confirmKey = prettyKey(
+        getSelectKeyText(this.keybindings, "selectConfirm"),
+      );
+      const cancelKey = prettyKey(
+        getSelectKeyText(this.keybindings, "selectCancel"),
+      );
       const multiSelectHint = this.multiSelect ? " • tab/s-tab toggle" : "";
       const helpText = ` ${upKey} ${downKey} nav${multiSelectHint} • ${confirmKey} select • ${cancelKey} cancel • shift+↑↓ scroll preview`;
       lines.push(boxLine(t.dim(helpText), innerWidth, side));
@@ -486,10 +566,16 @@ export class FuzzySelector extends Container implements Focusable {
       }
 
       // Help line
-      const upKey = prettyKey(editorKey("selectUp"));
-      const downKey = prettyKey(editorKey("selectDown"));
-      const confirmKey = prettyKey(editorKey("selectConfirm"));
-      const cancelKey = prettyKey(editorKey("selectCancel"));
+      const upKey = prettyKey(getSelectKeyText(this.keybindings, "selectUp"));
+      const downKey = prettyKey(
+        getSelectKeyText(this.keybindings, "selectDown"),
+      );
+      const confirmKey = prettyKey(
+        getSelectKeyText(this.keybindings, "selectConfirm"),
+      );
+      const cancelKey = prettyKey(
+        getSelectKeyText(this.keybindings, "selectCancel"),
+      );
       const multiSelectHint = this.multiSelect ? " • tab/s-tab toggle" : "";
       lines.push(
         boxLine(
