@@ -6,6 +6,10 @@
 
 - Imports now use the `@earendil-works/*` package names (needs pi >= 0.74.0)
 
+### Fixed
+
+- The global `fzf.json` now follows `PI_CODING_AGENT_DIR`, the same as pi. Before, pi-fzf always read `~/.pi/agent/fzf.json`
+
 ## [0.9.0] - 2026-04-24
 
 ### Added

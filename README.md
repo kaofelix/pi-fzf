@@ -41,7 +41,7 @@ You can also use standard `find` instead of `fd` if you prefer not to install ad
 
 Create a config file to define your commands:
 
-- `~/.pi/agent/fzf.json` — global commands
+- `fzf.json` in the pi agent directory — global commands. This directory is `~/.pi/agent` by default. Set `$PI_CODING_AGENT_DIR` to use another directory
 - `<project>/.pi/fzf.json` — project-specific (overrides global)
 
 Each command has a `list` (shell command that outputs candidates) and an `action` (what to do with the selection):
@@ -282,7 +282,7 @@ This works for any key: use `!`, `$`, or any character as a custom trigger for y
 
 ```json
 "skill": {
-  "list": "fd -L 'SKILL.md' ~/.pi/agent/skills ~/.pi/agent/git 2>/dev/null | sed -E 's|.*/skills/([^/]+)/SKILL\\.md|\\1|' | grep -v '/' | sort -u",
+  "list": "fd -L 'SKILL.md' \"${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}\"/skills \"${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}\"/git 2>/dev/null | sed -E 's|.*/skills/([^/]+)/SKILL\\.md|\\1|' | grep -v '/' | sort -u",
   "action": { "type": "editor", "template": "/skill:{{selected}}" }
 }
 ```
