@@ -1,6 +1,6 @@
 # pi-fzf
 
-A [Pi](https://github.com/badlogic/pi) extension for fuzzy finding. Define commands that list candidates from any shell command, then perform actions on the selected item—fill the editor, send to the agent, or run shell commands.
+A [Pi](https://github.com/earendil-works/pi) extension for fuzzy finding. Define commands that list candidates from any shell command, then perform actions on the selected item—fill the editor, send to the agent, or run shell commands.
 
 ![demo](demo.gif)
 
@@ -75,7 +75,7 @@ Add a `shortcut` field to trigger a command via a keyboard shortcut instead of t
 }
 ```
 
-The shortcut format follows Pi's [keybinding syntax](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/keybindings.md#key-format): `modifier+key` where modifiers are `ctrl`, `shift`, `alt` (combinable).
+The shortcut format follows Pi's [keybinding syntax](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/keybindings.md#key-syntax): `modifier+key` where modifiers are `ctrl`, `shift`, `alt` (combinable).
 
 ### Selector Placement
 
@@ -198,7 +198,7 @@ You can customize preview scrolling behavior in the `settings` section:
 | `previewScrollDown` | `shift+down` | Keybinding to scroll preview down |
 | `previewScrollLines` | `5` | Number of lines to scroll at a time |
 
-Keybindings use Pi's [keybinding syntax](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/keybindings.md#key-format): `modifier+key` (e.g., `alt+k`, `ctrl+u`).
+Keybindings use Pi's [keybinding syntax](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/keybindings.md#key-syntax): `modifier+key` (e.g., `alt+k`, `ctrl+u`).
 
 ## Actions
 
