@@ -2,8 +2,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 describe("FuzzySelector keybinding compatibility", () => {
   afterEach(() => {
-    vi.doUnmock("@mariozechner/pi-coding-agent");
-    vi.doUnmock("@mariozechner/pi-tui");
+    vi.doUnmock("@earendil-works/pi-coding-agent");
+    vi.doUnmock("@earendil-works/pi-tui");
     vi.resetModules();
   });
 
@@ -26,9 +26,9 @@ describe("FuzzySelector keybinding compatibility", () => {
       },
     };
 
-    vi.doMock("@mariozechner/pi-coding-agent", async () => {
+    vi.doMock("@earendil-works/pi-coding-agent", async () => {
       const actual = await vi.importActual<object>(
-        "@mariozechner/pi-coding-agent",
+        "@earendil-works/pi-coding-agent",
       );
       return {
         ...actual,
@@ -36,8 +36,8 @@ describe("FuzzySelector keybinding compatibility", () => {
       };
     });
 
-    vi.doMock("@mariozechner/pi-tui", async () => {
-      const actual = await vi.importActual<object>("@mariozechner/pi-tui");
+    vi.doMock("@earendil-works/pi-tui", async () => {
+      const actual = await vi.importActual<object>("@earendil-works/pi-tui");
       return {
         ...actual,
         getEditorKeybindings: undefined,

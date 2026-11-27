@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Imports now use the `@earendil-works/*` package names (needs pi >= 0.74.0)
+
 ## [0.9.0] - 2026-04-24
 
 ### Added

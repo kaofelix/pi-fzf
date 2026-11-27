@@ -1,8 +1,8 @@
 import type {
   ExtensionAPI,
   ExtensionCommandContext,
-} from "@mariozechner/pi-coding-agent";
-import type { TUI } from "@mariozechner/pi-tui";
+} from "@earendil-works/pi-coding-agent";
+import type { TUI } from "@earendil-works/pi-tui";
 import { executeAction } from "./actions.js";
 import type { FzfSettings, ResolvedCommand, SelectionValue } from "./config.js";
 import { loadFzfConfig, loadFzfSettings } from "./config.js";

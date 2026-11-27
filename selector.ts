@@ -1,12 +1,12 @@
-import type { Focusable, KeyId } from "@mariozechner/pi-tui";
-import * as PiTui from "@mariozechner/pi-tui";
+import type { Focusable, KeyId } from "@earendil-works/pi-tui";
+import * as PiTui from "@earendil-works/pi-tui";
 import {
   Container,
   Input,
   matchesKey,
   truncateToWidth,
   visibleWidth,
-} from "@mariozechner/pi-tui";
+} from "@earendil-works/pi-tui";
 import { extendedMatch, Fzf, type FzfResultItem } from "fzf";
 import type { FzfSettings, SelectionValue } from "./config.js";
 
