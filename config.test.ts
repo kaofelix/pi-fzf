@@ -1,7 +1,7 @@
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   loadFzfConfig,
   loadFzfSettings,
@@ -122,15 +122,35 @@ describe("loadFzfConfig", () => {
   beforeEach(() => {
     testDir = join(tmpdir(), `pi-fzf-test-${Date.now()}`);
     mkdirSync(join(testDir, ".pi"), { recursive: true });
+    mkdirSync(join(testDir, "agent"), { recursive: true });
+    vi.stubEnv("PI_CODING_AGENT_DIR", join(testDir, "agent"));
   });
 
   afterEach(() => {
+    vi.unstubAllEnvs();
     rmSync(testDir, { recursive: true, force: true });
   });
 
   function writeProjectConfig(config: object) {
     writeFileSync(join(testDir, ".pi", "fzf.json"), JSON.stringify(config));
   }
+
+  function writeGlobalConfig(config: object) {
+    writeFileSync(join(testDir, "agent", "fzf.json"), JSON.stringify(config));
+  }
+
+  it("loads global commands from the agent dir in PI_CODING_AGENT_DIR", () => {
+    writeGlobalConfig({
+      commands: {
+        "agent-dir-global": { list: "ls", action: "Read {{selected}}" },
+      },
+    });
+
+    const result = loadFzfConfig(testDir);
+    const globalCmd = result.find((c) => c.name === "agent-dir-global");
+
+    expect(globalCmd?.list).toBe("ls");
+  });
 
   it("loads commands from project config", () => {
     writeProjectConfig({
@@ -419,15 +439,33 @@ describe("loadFzfSettings", () => {
   beforeEach(() => {
     testDir = join(tmpdir(), `pi-fzf-settings-test-${Date.now()}`);
     mkdirSync(join(testDir, ".pi"), { recursive: true });
+    mkdirSync(join(testDir, "agent"), { recursive: true });
+    vi.stubEnv("PI_CODING_AGENT_DIR", join(testDir, "agent"));
   });
 
   afterEach(() => {
+    vi.unstubAllEnvs();
     rmSync(testDir, { recursive: true, force: true });
   });
 
   function writeProjectConfig(config: object) {
     writeFileSync(join(testDir, ".pi", "fzf.json"), JSON.stringify(config));
   }
+
+  function writeGlobalConfig(config: object) {
+    writeFileSync(join(testDir, "agent", "fzf.json"), JSON.stringify(config));
+  }
+
+  it("loads global settings from the agent dir in PI_CODING_AGENT_DIR", () => {
+    writeGlobalConfig({
+      commands: {},
+      settings: { previewScrollLines: 7 },
+    });
+
+    const settings = loadFzfSettings(testDir);
+
+    expect(settings.previewScrollLines).toBe(7);
+  });
 
   it("returns default settings when no config exists", () => {
     const settings = loadFzfSettings(testDir);

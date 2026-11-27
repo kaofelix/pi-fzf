@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
-import { homedir } from "node:os";
 import { join } from "node:path";
+import { CONFIG_DIR_NAME, getAgentDir } from "@earendil-works/pi-coding-agent";
 
 // --- Types ---
 
@@ -126,8 +126,8 @@ export function resolveAction(action: FzfAction): ResolvedAction {
  * Project-local commands override global commands with the same name.
  */
 export function loadFzfConfig(cwd: string): ResolvedCommand[] {
-  const globalPath = join(homedir(), ".pi", "agent", "fzf.json");
-  const projectPath = join(cwd, ".pi", "fzf.json");
+  const globalPath = join(getAgentDir(), "fzf.json");
+  const projectPath = join(cwd, CONFIG_DIR_NAME, "fzf.json");
 
   const globalConfig = loadConfigFile(globalPath);
   const projectConfig = loadConfigFile(projectPath);
@@ -161,8 +161,8 @@ export function loadFzfConfig(cwd: string): ResolvedCommand[] {
  * Project-local settings override global settings.
  */
 export function loadFzfSettings(cwd: string): FzfSettings {
-  const globalPath = join(homedir(), ".pi", "agent", "fzf.json");
-  const projectPath = join(cwd, ".pi", "fzf.json");
+  const globalPath = join(getAgentDir(), "fzf.json");
+  const projectPath = join(cwd, CONFIG_DIR_NAME, "fzf.json");
 
   const globalConfig = loadConfigFile(globalPath);
   const projectConfig = loadConfigFile(projectPath);
