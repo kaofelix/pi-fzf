@@ -1,6 +1,6 @@
 # pi-fzf
 
-A [Pi](https://github.com/badlogic/pi) extension for fuzzy finding. Define commands that list candidates from any shell command, then perform actions on the selected item—fill the editor, send to the agent, or run shell commands.
+A [Pi](https://github.com/earendil-works/pi) extension for fuzzy finding. Define commands that list candidates from any shell command, then perform actions on the selected item—fill the editor, send to the agent, or run shell commands.
 
 ![demo](demo.gif)
 
@@ -41,7 +41,7 @@ You can also use standard `find` instead of `fd` if you prefer not to install ad
 
 Create a config file to define your commands:
 
-- `~/.pi/agent/fzf.json` — global commands
+- `fzf.json` in the pi agent directory — global commands. This directory is `~/.pi/agent` by default. Set `$PI_CODING_AGENT_DIR` to use another directory
 - `<project>/.pi/fzf.json` — project-specific (overrides global)
 
 Each command has a `list` (shell command that outputs candidates) and an `action` (what to do with the selection):
@@ -75,7 +75,7 @@ Add a `shortcut` field to trigger a command via a keyboard shortcut instead of t
 }
 ```
 
-The shortcut format follows Pi's [keybinding syntax](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/keybindings.md#key-format): `modifier+key` where modifiers are `ctrl`, `shift`, `alt` (combinable).
+The shortcut format follows Pi's [keybinding syntax](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/keybindings.md#key-syntax): `modifier+key` where modifiers are `ctrl`, `shift`, `alt` (combinable).
 
 ### Selector Placement
 
@@ -198,7 +198,7 @@ You can customize preview scrolling behavior in the `settings` section:
 | `previewScrollDown` | `shift+down` | Keybinding to scroll preview down |
 | `previewScrollLines` | `5` | Number of lines to scroll at a time |
 
-Keybindings use Pi's [keybinding syntax](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/keybindings.md#key-format): `modifier+key` (e.g., `alt+k`, `ctrl+u`).
+Keybindings use Pi's [keybinding syntax](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/keybindings.md#key-syntax): `modifier+key` (e.g., `alt+k`, `ctrl+u`).
 
 ## Actions
 
@@ -282,7 +282,7 @@ This works for any key: use `!`, `$`, or any character as a custom trigger for y
 
 ```json
 "skill": {
-  "list": "fd -L 'SKILL.md' ~/.pi/agent/skills ~/.pi/agent/git 2>/dev/null | sed -E 's|.*/skills/([^/]+)/SKILL\\.md|\\1|' | grep -v '/' | sort -u",
+  "list": "fd -L 'SKILL.md' \"${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}\"/skills \"${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}\"/git 2>/dev/null | sed -E 's|.*/skills/([^/]+)/SKILL\\.md|\\1|' | grep -v '/' | sort -u",
   "action": { "type": "editor", "template": "/skill:{{selected}}" }
 }
 ```
@@ -326,3 +326,10 @@ A complete example config is available in [`examples/fzf.json`](examples/fzf.jso
 1. Type `/fzf:<name>` (e.g., `/fzf:file`) or press the configured shortcut
 2. Type to filter candidates
 3. Use ↑/↓ to navigate, Enter to select, Escape to cancel
+
+## Development
+
+`npm install` sets up a pre-commit hook that runs lefthook. The hook is a git config hook in this clone, so it needs git 2.54 or later. Hooks in your `core.hooksPath` folder still run.
+
+- To set up the hook again, run `npm run setup:hooks`.
+- To turn the hook off, run `git config --local hook.lefthook.enabled false`.

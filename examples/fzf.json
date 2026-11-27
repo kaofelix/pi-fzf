@@ -20,7 +20,7 @@
       }
     },
     "skill": {
-      "list": "fd -L 'SKILL.md' ~/.pi/agent/skills ~/.pi/agent/git 2>/dev/null | sed -E 's|.*/skills/([^/]+)/SKILL\\.md|\\1|' | grep -v '/' | sort -u",
+      "list": "fd -L 'SKILL.md' \"${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}\"/skills \"${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}\"/git 2>/dev/null | sed -E 's|.*/skills/([^/]+)/SKILL\\.md|\\1|' | grep -v '/' | sort -u",
       "action": { "type": "editor", "template": "/skill:{{selected}}" }
     },
     "branch": {
