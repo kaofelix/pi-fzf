@@ -326,3 +326,10 @@ A complete example config is available in [`examples/fzf.json`](examples/fzf.jso
 1. Type `/fzf:<name>` (e.g., `/fzf:file`) or press the configured shortcut
 2. Type to filter candidates
 3. Use ↑/↓ to navigate, Enter to select, Escape to cancel
+
+## Development
+
+`npm install` sets up a pre-commit hook that runs lefthook. The hook is a git config hook in this clone, so it needs git 2.54 or later. Hooks in your `core.hooksPath` folder still run.
+
+- To set up the hook again, run `npm run setup:hooks`.
+- To turn the hook off, run `git config --local hook.lefthook.enabled false`.
